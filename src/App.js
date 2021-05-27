@@ -9,7 +9,8 @@ import ToyContainer from './components/ToyContainer'
 class App extends React.Component{
 
   state = {
-    display: false
+    display: false,
+    toyArr: [],
   }
 
   handleClick = () => {
@@ -19,20 +20,48 @@ class App extends React.Component{
     })
   }
 
+
+  componentDidMount(){
+    fetch('http://localhost:3000/toys')
+      .then(res=>res.json())
+      .then(toyArr=>{
+        this.setState({
+          toyArr: toyArr
+        })
+      })
+  }
+
+  deleteToy = (toyToDelete) =>{
+    let copyToyArray = this.state.toyArr.filter(toy=>{
+      return toy.id !== toyToDelete.id
+    })
+    this.setState({
+      toyArr: copyToyArray
+    })
+  }
+
+  addToy = (toyToAdd)=>{
+    let copyToyArr = [...this.state.toyArr, toyToAdd]
+    this.setState({
+      toyArr: copyToyArr
+    })
+
+  }
+
   render(){
     return (
       <>
         <Header/>
         { this.state.display
             ?
-          <ToyForm/>
+          <ToyForm addToy={this.addToy}/>
             :
           null
         }
         <div className="buttonContainer">
           <button onClick={this.handleClick}> Add a Toy </button>
         </div>
-        <ToyContainer/>
+        <ToyContainer toyArr={this.state.toyArr} deleteToy={this.deleteToy}/>
       </>
     );
   }
